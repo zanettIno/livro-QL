@@ -4,6 +4,8 @@ import * as api from "./api.js";
 import * as ui from "./ui.js";
 
 const filters = { status: null, search: null };
+let editingAuthor = null; // autor sendo editado no CRUD (ou null)
+let lastAuthors = [];
 
 // Executa uma ação e mostra qualquer erro (HTTP ou "errors" do GraphQL) na tela
 async function run(action) {
@@ -14,7 +16,10 @@ async function run(action) {
   }
 }
 
-const handlers = {
+// ---------------------------------------------------------------------------
+// Livros
+// ---------------------------------------------------------------------------
+const bookHandlers = {
   onStatusChange: (book, status) =>
     run(async () => {
       await api.updateBookStatus(book.id, status);
@@ -34,13 +39,60 @@ const handlers = {
   },
 };
 
-async function load({ withAuthors = false } = {}) {
+// ---------------------------------------------------------------------------
+// Autores (CRUD)
+// ---------------------------------------------------------------------------
+const authorHandlers = {
+  onEdit: (author) => {
+    editingAuthor = author;
+    ui.setAuthorFormMode(author);
+    renderAuthors();
+  },
+  onDelete: (author) => {
+    if (!confirm(`Excluir o autor "${author.name}"?`)) return;
+    run(async () => {
+      await api.deleteAuthor(author.id);
+      if (editingAuthor?.id === author.id) cancelAuthorEdit();
+      await load();
+    });
+  },
+};
+
+function renderAuthors() {
+  ui.renderAuthorSelect(lastAuthors);
+  ui.renderAuthorList(lastAuthors, { ...authorHandlers, editingId: editingAuthor?.id });
+}
+
+function cancelAuthorEdit() {
+  editingAuthor = null;
+  ui.setAuthorFormMode(null);
+  renderAuthors();
+}
+
+ui.$("author-form").onsubmit = (e) => {
+  e.preventDefault();
+  run(async () => {
+    const input = ui.readAuthorForm();
+    if (editingAuthor) await api.updateAuthor(editingAuthor.id, input);
+    else await api.addAuthor(input);
+    editingAuthor = null;
+    ui.setAuthorFormMode(null);
+    await load();
+  });
+};
+ui.$("author-cancel").onclick = cancelAuthorEdit;
+
+// ---------------------------------------------------------------------------
+// Carregamento: uma única query traz livros, autores e estatísticas
+// ---------------------------------------------------------------------------
+async function load() {
   ui.setStatus("Carregando...");
-  const data = await api.fetchCatalog(filters, { withAuthors });
-  if (withAuthors) ui.renderAuthors(data.authors);
+  const data = await api.fetchCatalog(filters);
+  lastAuthors = data.authors;
+  renderAuthors();
   ui.renderStats(data.stats);
   ui.renderBooks(data.books, {
-    ...handlers,
+    ...bookHandlers,
     hasFilters: Boolean(filters.status || filters.search),
   });
   ui.setStatus("");
@@ -78,4 +130,4 @@ ui.$("search").oninput = (e) => {
   }, 300);
 };
 
-run(() => load({ withAuthors: true }));
+run(load);

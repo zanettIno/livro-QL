@@ -124,6 +124,11 @@ class Query:
         return [Author.from_record(a) for a in SERVICES.authors.list()]
 
     @strawberry.field
+    def author(self, id: strawberry.ID) -> Optional[Author]:
+        record = SERVICES.authors.get(id)
+        return Author.from_record(record) if record else None
+
+    @strawberry.field
     def stats(self) -> Stats:
         return Stats.from_data(SERVICES.stats.compute())
 
@@ -136,6 +141,14 @@ class Mutation:
     @strawberry.mutation
     def add_author(self, input: AuthorInput) -> Author:
         return Author.from_record(SERVICES.authors.add(input.name, input.country))
+
+    @strawberry.mutation
+    def update_author(self, id: strawberry.ID, input: AuthorInput) -> Author:
+        return Author.from_record(SERVICES.authors.update(id, input.name, input.country))
+
+    @strawberry.mutation
+    def delete_author(self, id: strawberry.ID) -> bool:
+        return SERVICES.authors.delete(id)
 
     @strawberry.mutation
     def add_book(self, input: BookInput) -> Book:

@@ -17,10 +17,56 @@ export function renderStats(s) {
   $("st-pages").textContent = s.totalPagesRead.toLocaleString("pt-BR");
 }
 
-export function renderAuthors(authors) {
+// Seletor de autor do formulário de livro (mantém a escolha atual, se ainda existir)
+export function renderAuthorSelect(authors) {
   const sel = $("author");
+  const current = sel.value;
   sel.length = 1; // mantém só o placeholder
   for (const a of authors) sel.add(new Option(a.name, a.id));
+  sel.value = authors.some((a) => a.id === current) ? current : "";
+}
+
+/**
+ * Lista do CRUD de autores.
+ * handlers: { editingId, onEdit(author), onDelete(author) }
+ */
+export function renderAuthorList(authors, { editingId, onEdit, onDelete }) {
+  $("authors-count").textContent = `(${authors.length})`;
+  const list = $("author-list");
+  list.innerHTML = "";
+  for (const a of authors) {
+    const li = el("li", a.id === editingId ? "editing" : null);
+    const books = a.bookCount === 1 ? "1 livro" : `${a.bookCount} livros`;
+    const info = el("span", "info", [a.country, books].filter(Boolean).join(" · "));
+
+    const edit = el("button", null, "Editar");
+    edit.onclick = () => onEdit(a);
+    const del = el("button", null, "Excluir");
+    del.onclick = () => onDelete(a);
+    const actions = el("span", "actions");
+    actions.append(edit, del);
+
+    li.append(el("span", "name", a.name), info, actions);
+    list.appendChild(li);
+  }
+}
+
+export function readAuthorForm() {
+  return { name: $("author-name").value, country: $("author-country").value || null };
+}
+
+// Alterna o formulário de autor entre "adicionar" e "editar"
+export function setAuthorFormMode(author) {
+  const editing = Boolean(author);
+  $("author-form").classList.toggle("editing", editing);
+  $("author-name").value = author?.name ?? "";
+  $("author-country").value = author?.country ?? "";
+  $("author-submit").textContent = editing ? "Salvar alterações" : "Adicionar autor";
+  $("author-cancel").hidden = !editing;
+  if (editing) {
+    $("authors-card").open = true;
+    $("author-name").focus();
+  }
 }
 
 export function readBookForm() {

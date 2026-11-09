@@ -51,11 +51,15 @@ type Query {
   books(status: ReadingStatus, search: String): [Book!]!
   book(id: ID!): Book
   authors: [Author!]!
+  author(id: ID!): Author
   stats: Stats!
 }
 
 type Mutation {
   addAuthor(input: AuthorInput!): Author!
+  updateAuthor(id: ID!, input: AuthorInput!): Author!
+  "Falha se o autor ainda tiver livros."
+  deleteAuthor(id: ID!): Boolean!
   addBook(input: BookInput!): Book!
   updateBookStatus(id: ID!, status: ReadingStatus!): Book!
   rateBook(id: ID!, rating: Int!): Book!

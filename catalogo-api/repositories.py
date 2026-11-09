@@ -20,6 +20,8 @@ class AuthorRepository(Protocol):
     def find_by_id(self, id: str) -> Optional[AuthorRecord]: ...
     def exists(self, id: str) -> bool: ...
     def create(self, name: str, country: Optional[str]) -> AuthorRecord: ...
+    def update(self, id: str, **changes) -> Optional[AuthorRecord]: ...
+    def delete(self, id: str) -> bool: ...
 
 
 class BookRepository(Protocol):
@@ -57,6 +59,17 @@ class InMemoryAuthorRepository:
         author = AuthorRecord(id=str(next(self._ids)), name=name, country=country)
         self._items[author.id] = author
         return author
+
+    def update(self, id: str, **changes) -> Optional[AuthorRecord]:
+        author = self.find_by_id(id)
+        if author is None:
+            return None
+        updated = replace(author, **changes)
+        self._items[updated.id] = updated
+        return updated
+
+    def delete(self, id: str) -> bool:
+        return self._items.pop(str(id), None) is not None
 
 
 class InMemoryBookRepository:

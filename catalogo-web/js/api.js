@@ -10,23 +10,34 @@ const BOOK_FIELDS = `
     author { id name }
   }`;
 
-const STATS_FIELDS = `stats { totalBooks finishedBooks averageRating totalPagesRead }`;
+const AUTHOR_FIELDS = `
+  fragment AuthorFields on Author {
+    id name country bookCount
+  }`;
 
-// Uma única requisição traz livros + estatísticas (+ autores no carregamento inicial)
-const BOOKS_Q = `
-  query Books($status: ReadingStatus, $search: String) {
+// Uma única requisição traz tudo que a tela precisa: livros, autores e estatísticas
+const CATALOG_Q = `
+  query Catalog($status: ReadingStatus, $search: String) {
     books(status: $status, search: $search) { ...BookFields }
-    ${STATS_FIELDS}
+    authors { ...AuthorFields }
+    stats { totalBooks finishedBooks averageRating totalPagesRead }
   }
-  ${BOOK_FIELDS}`;
+  ${BOOK_FIELDS}
+  ${AUTHOR_FIELDS}`;
 
-const INITIAL_Q = `
-  query Initial($status: ReadingStatus, $search: String) {
-    books(status: $status, search: $search) { ...BookFields }
-    authors { id name }
-    ${STATS_FIELDS}
+const ADD_AUTHOR_M = `
+  mutation AddAuthor($input: AuthorInput!) {
+    addAuthor(input: $input) { ...AuthorFields }
   }
-  ${BOOK_FIELDS}`;
+  ${AUTHOR_FIELDS}`;
+
+const UPDATE_AUTHOR_M = `
+  mutation UpdateAuthor($id: ID!, $input: AuthorInput!) {
+    updateAuthor(id: $id, input: $input) { ...AuthorFields }
+  }
+  ${AUTHOR_FIELDS}`;
+
+const DELETE_AUTHOR_M = `mutation DeleteAuthor($id: ID!) { deleteAuthor(id: $id) }`;
 
 const ADD_BOOK_M = `
   mutation AddBook($input: BookInput!) {
@@ -68,8 +79,14 @@ export async function gql(query, variables = {}) {
 }
 
 // Operações usadas pela tela
-export const fetchCatalog = (filters, { withAuthors = false } = {}) =>
-  gql(withAuthors ? INITIAL_Q : BOOKS_Q, filters);
+export const fetchCatalog = (filters) => gql(CATALOG_Q, filters);
+
+// CRUD de autores
+export const addAuthor = (input) => gql(ADD_AUTHOR_M, { input });
+
+export const updateAuthor = (id, input) => gql(UPDATE_AUTHOR_M, { id, input });
+
+export const deleteAuthor = (id) => gql(DELETE_AUTHOR_M, { id });
 
 export const addBook = (input) => gql(ADD_BOOK_M, { input });
 

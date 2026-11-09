@@ -40,11 +40,47 @@ class AuthorService:
         # Calculado na hora: nunca fica dessincronizado da lista de livros
         return self.books.count_by_author_id(author_id)
 
+    # --- CRUD ---------------------------------------------------------------
     def add(self, name: str, country: Optional[str]) -> AuthorRecord:
-        if not name.strip():
+        clean_name, clean_country = self._validate(name, country)
+        return self.authors.create(clean_name, clean_country)
+
+    def update(self, id: str, name: str, country: Optional[str]) -> AuthorRecord:
+        self._get_or_fail(id)
+        clean_name, clean_country = self._validate(name, country, ignore_id=str(id))
+        return self.authors.update(id, name=clean_name, country=clean_country)
+
+    def delete(self, id: str) -> bool:
+        author = self._get_or_fail(id)
+        # Não deixa livro "órfão": o autor só sai se não tiver livros
+        count = self.books.count_by_author_id(id)
+        if count:
+            raise ValidationError(
+                f'Não é possível excluir "{author.name}": ainda há {count} livro(s) desse autor. '
+                "Exclua os livros primeiro."
+            )
+        return self.authors.delete(id)
+
+    def _validate(
+        self, name: str, country: Optional[str], ignore_id: Optional[str] = None
+    ) -> tuple[str, Optional[str]]:
+        clean_name = name.strip()
+        if not clean_name:
             raise ValidationError("O nome do autor não pode ser vazio.")
+        duplicate = any(
+            a.name.casefold() == clean_name.casefold() and a.id != ignore_id
+            for a in self.authors.find_all()
+        )
+        if duplicate:
+            raise ValidationError(f'Já existe um autor chamado "{clean_name}".')
         clean_country = country.strip() if country and country.strip() else None
-        return self.authors.create(name.strip(), clean_country)
+        return clean_name, clean_country
+
+    def _get_or_fail(self, id: str) -> AuthorRecord:
+        author = self.authors.find_by_id(id)
+        if author is None:
+            raise NotFoundError(f"Autor {id} não encontrado.")
+        return author
 
 
 class BookService:
@@ -145,6 +181,7 @@ SEED_AUTHORS = [
     ("Clarice Lispector", "Brasil"),
     ("George Orwell", "Reino Unido"),
     ("Miguel de Cervantes", "Espanha"),
+    ("The Author", "Brasil")
 ]
 
 SEED_BOOKS = [

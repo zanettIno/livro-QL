@@ -88,6 +88,25 @@
   li.empty { justify-content: center; flex-direction: column; text-align: center; color: var(--muted); padding: 2rem; border-style: dashed; box-shadow: none; }
   li.empty img { width: 90px; height: 90px; object-fit: cover; object-position: center 30%; border-radius: 50%; border: var(--stroke); opacity: .85; }
 
+  /* Autores */
+  .authors-card { background: var(--card); border: var(--stroke); border-radius: var(--radius); box-shadow: var(--shadow); padding: 1.1rem; margin-top: 1.25rem; }
+  .authors-card summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: .5rem; }
+  .authors-card summary::-webkit-details-marker { display: none; }
+  .authors-card summary::before { content: "▸"; color: var(--wine); font-size: 1.1rem; transition: transform .15s; }
+  .authors-card[open] summary::before { transform: rotate(90deg); }
+  .authors-card summary h2 { margin: 0; }
+  .authors-card .count { font-size: .85rem; color: var(--muted); font-weight: 500; }
+  .author-form { display: flex; flex-wrap: wrap; gap: .6rem; margin: 1rem 0 .9rem; padding: 0; border: 0; box-shadow: none; }
+  .author-form input { flex: 1; min-width: 160px; }
+  .author-form.editing input { border-color: var(--wine); background: var(--wine-soft); }
+  .author-list { gap: .5rem; }
+  .author-list li { box-shadow: 2px 2px 0 var(--ink); padding: .55rem .9rem; border-radius: 12px; }
+  .author-list li.editing { background: var(--wine-soft); }
+  .author-list .name { font-weight: 600; flex: 1; min-width: 160px; }
+  .author-list .info { color: var(--muted); font-size: .88rem; flex: 0 1 auto; min-width: 0; }
+  .author-list .actions { display: flex; gap: .25rem; }
+  .author-list .actions button { border: 0; background: none; color: var(--wine); text-decoration: underline; text-underline-offset: 3px; padding: .3rem .4rem; }
+
   @media (max-width: 640px) {
     header img { width: 76px; height: 76px; }
     header h1 { font-size: 1.8rem; }
@@ -122,6 +141,18 @@
     <select id="author" required><option value="">Autor...</option></select>
     <button type="submit" class="btn-primary">Adicionar</button>
   </form>
+
+  <!-- CRUD de autores -->
+  <details class="authors-card" id="authors-card">
+    <summary><h2>Autores <span class="count" id="authors-count"></span></h2></summary>
+    <form id="author-form" class="author-form">
+      <input id="author-name" placeholder="Nome do autor" required>
+      <input id="author-country" placeholder="País (opcional)">
+      <button type="submit" class="btn-primary" id="author-submit">Adicionar autor</button>
+      <button type="button" id="author-cancel" hidden>Cancelar</button>
+    </form>
+    <ul id="author-list" class="author-list"></ul>
+  </details>
 
   <div class="toolbar">
     <div class="filters">
