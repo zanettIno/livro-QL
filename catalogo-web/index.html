@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Livro-QL · Meu Catálogo de Livros</title>
+<link rel="icon" href="assets/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* Identidade visual Livro-QL: vinho do título, cinza do chapéu, traço escuro do desenho */
+  :root {
+    --wine: #9b1c3a;
+    --wine-dark: #7a1530;
+    --wine-soft: #f6e4e8;
+    --hat: #8a949b;
+    --hat-soft: #e7eaec;
+    --ink: #3d1f26;
+    --paper: #fbf8f5;
+    --card: #ffffff;
+    --muted: #6f5f63;
+    --stroke: 2px solid var(--ink);
+    --shadow: 4px 4px 0 var(--ink);
+    --radius: 16px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Fredoka", "Nunito", "Segoe UI Rounded", system-ui, sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+  }
+  main { max-width: 900px; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
+  h2 { font-size: 1.15rem; font-weight: 600; margin: 0 0 .25rem; color: var(--wine); }
+
+  /* Cabeçalho */
+  header { display: flex; align-items: center; gap: 1.25rem; margin-bottom: 1.5rem; }
+  header img { width: 104px; height: 104px; object-fit: cover; object-position: center 30%; border-radius: 50%; border: var(--stroke); box-shadow: var(--shadow); background: #fff; flex-shrink: 0; }
+  header h1 { font-size: 2.3rem; font-weight: 700; color: var(--wine); margin: 0; line-height: 1; letter-spacing: .5px; }
+  header p { margin: .35rem 0 0; color: var(--muted); }
+
+  /* Cartões com traço de desenho */
+  .card, .stat, li, form { background: var(--card); border: var(--stroke); border-radius: var(--radius); box-shadow: var(--shadow); }
+
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+  .stat { padding: .9rem 1.1rem; }
+  .stat:nth-child(odd) { background: var(--wine-soft); }
+  .stat:nth-child(even) { background: var(--hat-soft); }
+  .stat .value { font-size: 2rem; font-weight: 700; color: var(--wine); line-height: 1.1; }
+  .stat .label { font-size: .85rem; color: var(--muted); font-weight: 500; }
+
+  form { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.5fr) auto; gap: .6rem; padding: 1.1rem; }
+  form input, form select { min-width: 0; width: 100%; }
+  form h2 { grid-column: 1 / -1; }
+  input, select, button {
+    padding: .55rem .75rem; font-size: .95rem; font-family: inherit; color: var(--ink);
+    border: var(--stroke); border-radius: 10px; background: #fff;
+  }
+  input:focus, select:focus { outline: 3px solid var(--wine-soft); border-color: var(--wine); }
+  button { cursor: pointer; font-weight: 600; transition: transform .1s, box-shadow .1s; }
+  .btn-primary { background: var(--wine); color: #fff; box-shadow: 3px 3px 0 var(--ink); }
+  .btn-primary:hover { background: var(--wine-dark); }
+  .btn-primary:active, .filters button:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
+
+  .toolbar { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; margin: 1.75rem 0 .5rem; }
+  .filters { display: flex; gap: .4rem; flex-wrap: wrap; }
+  .filters button { background: var(--hat-soft); box-shadow: 2px 2px 0 var(--ink); }
+  .filters button.active { background: var(--wine); color: #fff; }
+  #search { flex: 1; min-width: 200px; }
+
+  #status { min-height: 1.4rem; color: var(--muted); margin: .6rem 0; }
+  #status.error { color: var(--wine); font-weight: 600; background: var(--wine-soft); border: var(--stroke); border-radius: 10px; padding: .55rem .8rem; }
+
+  ul { list-style: none; padding: 0; margin: 0; display: grid; gap: .85rem; }
+  li { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; padding: .85rem 1.1rem; }
+  li .info { flex: 1; min-width: 220px; }
+  .title { font-weight: 600; font-size: 1.1rem; }
+  .meta { font-size: .88rem; color: var(--muted); margin-top: .2rem; display: flex; flex-wrap: wrap; gap: .35rem .6rem; align-items: center; }
+  .pill { font-size: .75rem; font-weight: 600; padding: .1rem .55rem; border-radius: 999px; border: 1.5px solid var(--ink); }
+  .pill.WANT_TO_READ { background: var(--hat-soft); }
+  .pill.READING { background: #fff3d6; }
+  .pill.FINISHED { background: var(--wine); color: #fff; }
+  .stars { color: var(--wine); letter-spacing: 1px; }
+  li select:disabled { opacity: .45; cursor: not-allowed; }
+  li .del { border: 0; background: none; color: var(--wine); text-decoration: underline; text-underline-offset: 3px; }
+  li .del:hover { color: var(--wine-dark); }
+  li.empty { justify-content: center; flex-direction: column; text-align: center; color: var(--muted); padding: 2rem; border-style: dashed; box-shadow: none; }
+  li.empty img { width: 90px; height: 90px; object-fit: cover; object-position: center 30%; border-radius: 50%; border: var(--stroke); opacity: .85; }
+
+  @media (max-width: 640px) {
+    header img { width: 76px; height: 76px; }
+    header h1 { font-size: 1.8rem; }
+    form { grid-template-columns: 1fr 1fr; }
+    form #title, form #author, form button { grid-column: 1 / -1; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <img src="assets/logo.png" alt="Logo Livro-QL">
+    <div>
+      <h1>Livro-QL</h1>
+      <p>Meu catálogo de livros, movido a GraphQL</p>
+    </div>
+  </header>
+
+  <!-- Painel alimentado pela query stats -->
+  <section class="stats">
+    <div class="stat"><div class="value" id="st-total">–</div><div class="label">Livros no catálogo</div></div>
+    <div class="stat"><div class="value" id="st-finished">–</div><div class="label">Livros lidos</div></div>
+    <div class="stat"><div class="value" id="st-rating">–</div><div class="label">Nota média</div></div>
+    <div class="stat"><div class="value" id="st-pages">–</div><div class="label">Páginas lidas</div></div>
+  </section>
+
+  <form id="form">
+    <h2>Cadastrar livro</h2>
+    <input id="title" placeholder="Título" required>
+    <input id="year" type="number" placeholder="Ano" required>
+    <input id="pages" type="number" placeholder="Páginas" min="1" required>
+    <select id="author" required><option value="">Autor...</option></select>
+    <button type="submit" class="btn-primary">Adicionar</button>
+  </form>
+
+  <div class="toolbar">
+    <div class="filters">
+      <button data-status="" class="active">Todos</button>
+      <button data-status="WANT_TO_READ">Quero ler</button>
+      <button data-status="READING">Lendo</button>
+      <button data-status="FINISHED">Lidos</button>
+    </div>
+    <input id="search" type="search" placeholder="Buscar por título...">
+  </div>
+
+  <p id="status"></p>
+  <ul id="list"></ul>
+</main>
+
+<!-- Desafio extra: JavaScript separado em módulos (api.js, ui.js, main.js) -->
+<script type="module" src="js/main.js"></script>
+<script>
+  // Módulos ES não carregam via file://. Avisa caso a página tenha sido aberta direto do disco.
+  if (location.protocol === "file:") {
+    const s = document.getElementById("status");
+    s.className = "error";
+    s.textContent = "Abra pelo servidor: http://localhost:8000 (módulos JS não funcionam via file://).";
+  }
+</script>
+</body>
+</html>

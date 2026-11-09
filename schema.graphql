@@ -1,0 +1,63 @@
+"""Progresso de leitura de um livro."""
+enum ReadingStatus {
+  WANT_TO_READ
+  READING
+  FINISHED
+}
+
+type Author {
+  id: ID!
+  name: String!
+  country: String
+  books: [Book!]!
+  "Calculado por resolver a partir da lista de livros."
+  bookCount: Int!
+}
+
+type Book {
+  id: ID!
+  title: String!
+  year: Int!
+  pages: Int!
+  status: ReadingStatus!
+  "Nota de 1 a 5. Só existe em livros FINISHED."
+  rating: Int
+  author: Author!
+}
+
+type Stats {
+  totalBooks: Int!
+  finishedBooks: Int!
+  "Nulo quando nenhum livro foi avaliado."
+  averageRating: Float
+  "Soma das páginas dos livros FINISHED."
+  totalPagesRead: Int!
+}
+
+input AuthorInput {
+  name: String!
+  country: String
+}
+
+input BookInput {
+  title: String!
+  year: Int!
+  pages: Int!
+  authorId: ID!
+}
+
+type Query {
+  "Filtros opcionais: status e busca por trecho do título (sem diferenciar maiúsculas)."
+  books(status: ReadingStatus, search: String): [Book!]!
+  book(id: ID!): Book
+  authors: [Author!]!
+  stats: Stats!
+}
+
+type Mutation {
+  addAuthor(input: AuthorInput!): Author!
+  addBook(input: BookInput!): Book!
+  updateBookStatus(id: ID!, status: ReadingStatus!): Book!
+  rateBook(id: ID!, rating: Int!): Book!
+  deleteBook(id: ID!): Boolean!
+}
