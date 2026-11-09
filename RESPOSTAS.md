@@ -3,7 +3,7 @@
 ## Parte 1: Perguntas de reflexão
 
 **1. Por que `status` é melhor como enum do que como String?**  
-**R.:** $\color{red}{\text{Com enum, só dá para mandar os três}}$ $\color{red}{\text{valores certos (WANT\_TO\_READ, READING e FINISHED). Se alguém}}$ $\color{red}{\text{mandar "lido" ou digitar errado, o próprio GraphQL}}$ $\color{red}{\text{já recusa. Com String, qualquer texto passaria e}}$ $\color{red}{\text{eu teria que validar na mão.}}$
+**R.:** $\color{red}{\text{Com enum, só dá para mandar os três}}$ $\color{red}{\text{valores certos do enum (quero ler, lendo e}}$ $\color{red}{\text{lido). Se alguém mandar "terminado" ou digitar errado,}}$ $\color{red}{\text{o próprio GraphQL já recusa. Com String, qualquer}}$ $\color{red}{\text{texto passaria e eu teria que validar na}}$ $\color{red}{\text{mão.}}$
 
 **2. Por que `rating` é opcional e `title` não?**  
 **R.:** $\color{red}{\text{Todo livro tem título, não faz sentido cadastrar}}$ $\color{red}{\text{um livro sem nome. Já a nota só}}$ $\color{red}{\text{existe depois que você termina de ler. Então}}$ $\color{red}{\text{um livro que ainda está em "Quero ler"}}$ $\color{red}{\text{ou "Lendo" fica sem nota (null).}}$
