@@ -173,7 +173,7 @@ class Mutation:
 # ---------------------------------------------------------------------------
 schema = strawberry.Schema(query=Query, mutation=Mutation)
 
-app = FastAPI(title="Livro-QL – Meu Catálogo de Livros (GraphQL)")
+app = FastAPI(title="Livro-QL – Nosso Catálogo de Livros (GraphQL)")
 
 # CORS liberado para o front-end (aberto via arquivo ou outro servidor) acessar a API
 app.add_middleware(

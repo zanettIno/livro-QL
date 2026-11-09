@@ -2,11 +2,12 @@
   <img src="catalogo-web/assets/logo-transparente.png" alt="Logo Livro-QL" width="260">
 </p>
 
-# Livro-QL, o Meu Catálogo de Livros
+<h1 align="center">
+Livro-QL
+</h1>
 
 Este repositório contém o código-fonte do **Livro-QL**, um app web para registrar livros, autores e o progresso de leitura de cada livro. Ele foi desenvolvido pelo grupo CANDI como exercício de GraphQL da disciplina de Multiplataforma. O objetivo é praticar a modelagem de um schema GraphQL (tipos, enums, inputs, queries e mutations), implementar a API com resolvers e validações e consumi-la com um front-end próprio.
 
-> [!IMPORTANT]
 > ## 📖 Respostas do exercício → [RESPOSTAS.md](RESPOSTAS.md)
 > As respostas das **perguntas de reflexão (Parte 1)** e da **análise (Parte 4)** estão no arquivo **[RESPOSTAS.md](RESPOSTAS.md)**.
 
@@ -20,10 +21,6 @@ Este repositório contém o código-fonte do **Livro-QL**, um app web para regis
 - **Nuno Kasuo Tronco Yokoji :long_drum:**
 
 ---
-
-## :high_brightness: Propósito
-
-O Livro-QL é um catálogo pessoal de leitura: você cadastra os livros que quer ler, está lendo ou já leu, acompanha o progresso e dá uma nota de 1 a 5 só para o que terminou. A tela principal busca livros, autores e estatísticas com **uma única requisição GraphQL**, o que mostra na prática a vantagem do GraphQL sobre várias chamadas REST.
 
 ## :bulb: Características Principais
 
